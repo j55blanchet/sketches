@@ -1,0 +1,13 @@
+{
+  "name": "sketches",
+  "version": "1.0.0",
+  "description": "Creative Sketches",
+  "main": "index.js",
+  "repository": "git@github.com:j55blanchet/sketches.git",
+  "author": "Julien Blanchet <j55blanchet@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/p5": "^0.9.0"
+  }
+}

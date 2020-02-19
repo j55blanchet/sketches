@@ -1,8 +1,13 @@
 {
     "compilerOptions": {
-        "outDir": "./built",
+        "outDir": "built",
         "target": "es5",
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noImplicitReturns": true,
+        "strict": true,
+        "sourceMap": true,
+        "baseUrl": "."
     },
     "include": [
         "./src/**/*",

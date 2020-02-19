@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "outDir": "./built",
+        "target": "es5",
+        "noImplicitAny": true
+    },
+    "include": [
+        "./src/**/*",
+        "../node_modules/@types/p5/global.d.ts"
+    ]
+}

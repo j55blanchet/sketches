@@ -16,7 +16,7 @@
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "name": "Launch localhost",
+            "name": "Launch Firefox against localhost",
             "url": "http://localhost:8080/index.html",
             "webRoot": "${workspaceFolder}"
         }

@@ -1,9 +1,12 @@
 
 /// <reference path="../node_modules/@types/p5/global.d.ts" />
 
-const SPEED_FACTOR = 0.01
+const SPEED_FACTOR = 0.1
 
-const w = 1000,
+const BRANCH_MIN_DIST = 30
+const BRANCH_PROBABILITY = 0.01
+
+const w = 500,
       h = 1000;
 
 var tree;
@@ -17,7 +20,7 @@ function setup() {
 
     background(90, 0, 90)
     stroke(0, 0, 0)
-    strokeWeight(4)
+    strokeWeight(2)
     
     tree = new Branch(createVector(w / 2, 0), PI / 2)
 }
@@ -44,6 +47,8 @@ class Branch {
         this.ang = ang
         this.l =  0.1
         this.children = []
+        this.lastChild = 0
+        this.lastChildAngleSign = random() > 0.5 ? -1 : 1
     }
 
     grow(percent) {
@@ -51,18 +56,36 @@ class Branch {
         this.l += growth * SPEED_FACTOR
 
         // TODO: grow children
+        for(let c of this.children) {
+            c.grow()
+        }
+
+        if (this.l - this.lastChild > BRANCH_MIN_DIST && random() < BRANCH_PROBABILITY) {
+            // Create branch
+            let child = new Branch(createVector(this.l, 0), random(PI / 3) * this.lastChildAngleSign)
+            this.lastChildAngleSign = -this.lastChildAngleSign
+            this.children.push(child)
+
+            this.lastChild = this.l
+        }
     }
     
     draw() {
         push()
         
-        strokeWeight(max(sqrt(this.l), 0.1))
+        strokeWeight(max(sqrt(this.l) / 3, 0.1))
 
         translate(this.pos)
         rotate(this.ang)
-
+ 
         // TODO: make the branch decrease in size as it goes higher
         line(0, 0, this.l, 0)
+
+        scale(0.8)
+
+        for(let c of this.children) {
+            c.draw()
+        }
 
         pop()
     }   

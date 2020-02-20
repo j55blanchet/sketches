@@ -1,11 +1,16 @@
 
+let gid = 0
+
 class Segment {
 
+  id: number
   children: {pos: number, seg: Segment}[] = [];
   
   constructor(public parent: Segment | null, 
               public length: number, 
               public angle: number){
+    this.id = gid
+    gid += 1
   }
 
   addChild(pos: number, ang: number, len: number): Segment{
@@ -18,10 +23,10 @@ class Segment {
     return seg
   }
   
-  draw() {
-    push()
+  draw(transformer: P5Transformer, callback?: (s: Segment) => void) {
+    transformer.push()
 
-    rotate(this.angle)
+    transformer.rotate(this.angle)
 
     let sr_len = sqrt(this.length)
     let h_sr_len = sr_len / 2
@@ -36,15 +41,18 @@ class Segment {
     fill(225, 53, 6)
     ellipse(0, 0, h_sr_len, h_sr_len)
     
+    if (callback) {
+      callback(this)
+    }
     
     for(let c of this.children){
-      push()
-      translate(c.pos, 0, 0)
-      c.seg.draw()
-      pop()
+      transformer.push()
+      transformer.translate(c.pos, 0)
+      c.seg.draw(transformer, callback)
+      transformer.pop()
     }   
     
-    pop()
+    transformer.pop()
   }
 
   recurse(f: (s: Segment) => void){

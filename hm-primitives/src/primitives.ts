@@ -34,6 +34,9 @@ var params = {
     randomCount: 10,
     randomRates: true
   },
+  drawing: {
+    pointSize: 6
+  },
   drawLines: false,
   drawDots: true,
   color: {
@@ -43,18 +46,19 @@ var params = {
 
 
 function setup() {
-  
+  createButton("Save without arms").mouseClicked(saveBuffer)
+
   colors = [
       // https://paletton.com/#uid=75-0S0kmqsTcVHEidwXrnpUtBkl
-    color(199, 29,  45),
-    color(206, 139, 30),
-    color(72,  111,  175),
-    color(51,  172, 25),
+    color(199, 29,  45,  40),
+    color(206, 139, 30,  40),
+    color(72,  111, 175, 40),
+    color(51,  172, 25,  40) ,
     // https://paletton.com/#uid=7420S0kmqsTcVHEidwXrnpUtBkl
-    color(97,  92,  180),
-    color(144, 46,  150),
-    color(174, 200, 29),
-    color(206, 165, 30)
+    color(97,  92,  180, 40),
+    color(144, 46,  150, 40),
+    color(174, 200, 29,  40),
+    color(206, 165, 30,  40)
   ]
 
   params = {
@@ -64,22 +68,25 @@ function setup() {
     },
     depth: {
       min: 4,
-      max: 5
+      max: 4
     },
     length: {
-      min: 0.0625,
-      max: 0.2125
+      min: 0.0455,
+      max: 0.2525
     },
     angle: {
       startMin: 0,
       startMax: TWO_PI,
       incMin: 0.01,
-      incMax: 0.15,
+      incMax: 0.08,
       randomCount: 10,
-      randomRates: false
+      randomRates: true
+    },
+    drawing: {
+      pointSize: 20
     },
     drawLines: false,
-    drawDots: true,
+    drawDots: true, 
     color: {
       offset: floor(random(colors.length))
     }
@@ -94,16 +101,19 @@ function setup() {
     }
   } else {
     angleRates = [
-      0.10,
-      0.05,
-      0.025,
-      0.075
+      0.04,
+      0.08,
+      0.12,
+      0.24
+      // 0.05,
+      // 0.025,
+      // 0.075
     ]
   }
 
   rootSegs = []
 
-  canvas = createCanvas(windowWidth, windowHeight - 40);
+  canvas = createCanvas(5000, 5000);
   
   frameRate(60)
 
@@ -134,8 +144,8 @@ function setup() {
     })
   }
 
-  createButton("Save without arms").mouseClicked(saveBuffer)
-  createButton("Save with arms").mouseClicked(saveAll)
+  
+  // createButton("Save with arms").mouseClicked(saveAll)
 }
 
 function saveBuffer(){
@@ -150,7 +160,13 @@ function printLocation(seg: Segment) {
   
   let ci = (params.color.offset + seg.id) % colors.length;
   let c = colors[ci]
+  c.setAlpha(50 + seg.depth * 57)
+  if (seg.depth == 1) {
+    c.setAlpha(8)
+  }
   buffer.stroke(c)
+
+  
   // console.log(`Seg #${seg.id}\tcolor: ${ci}`)
 
   transformer.push()
@@ -165,7 +181,7 @@ function printLocation(seg: Segment) {
   }
   if (params.drawDots)
   {
-    buffer.strokeWeight(5)
+    buffer.strokeWeight(params.drawing.pointSize)
     buffer.point(transformer.x, transformer.y);
   }
   

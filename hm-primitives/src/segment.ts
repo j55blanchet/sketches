@@ -4,7 +4,9 @@ class Segment {
 
   id: number
   children: {pos: number, seg: Segment}[] = [];
-  prevLoc: {x: number, y: number} | null = null
+  pLoc: {x: number, y: number} | null = null;
+  ppLoc: {x: number, y: number} | null = null;
+  pppLoc: {x: number, y: number} | null = null;
   
   constructor(public parent: Segment | null, 
               public length: number, 

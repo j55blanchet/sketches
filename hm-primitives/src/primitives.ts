@@ -29,6 +29,7 @@ function setup() {
   
   rootSeg.addChild(140, PI / 3, 100)
          .addChild(100, PI / 2, 60)
+         .addChild(60, PI, 100)
 }
 
 function printLocation(seg: Segment) {
@@ -48,8 +49,15 @@ function draw() {
 
   rootSeg.draw(transformer, printLocation);
 
+  let angleRates = [
+    0.1, 
+    0.05,
+    0.15, 
+    0.07
+  ]
+
   rootSeg.recurse((s: Segment) => {
-    s.angle += 0.1;
+    s.angle += angleRates[s.id];
     s.angle %= 2 * PI;
   });
 }

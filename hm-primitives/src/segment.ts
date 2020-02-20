@@ -11,13 +11,14 @@ class Segment {
   constructor(public parent: Segment | null, 
               public length: number, 
               public angle: number,
-              public depth: number = 1){
+              public depth: number = 1,
+              public color: any = undefined){
     this.id = gid
     gid += 1
   }
 
-  addChild(pos: number, ang: number, len: number): Segment{
-    let seg = new Segment(this, len, ang, this.depth + 1)
+  addChild(pos: number, ang: number, len: number, color: any): Segment{
+    let seg = new Segment(this, len, ang, this.depth + 1, color)
     this.children.push({
       pos: pos,
       seg: seg
@@ -26,7 +27,7 @@ class Segment {
     return seg
   }
   
-  draw(transformer: P5Transformer, callback?: (s: Segment) => void) {
+  draw(transformer: P5Transformer, drawArms: boolean, callback?: (s: Segment) => void) {
     transformer.push()
 
     transformer.rotate(this.angle)
@@ -34,19 +35,22 @@ class Segment {
     let sr_len = sqrt(this.length)
     let h_sr_len = sr_len / 2
 
-    stroke(30, 50)
-    fill(30, 100)
-    strokeWeight(h_sr_len)
-    rectMode(CENTER)
-    rect(this.length / 2, 0, this.length + sr_len, sr_len, h_sr_len)
+    if (drawArms) {
 
-    // strokeWeight(1)
-    // fill(225, 53, 6, 100)
-    // ellipse(0, 0, h_sr_len, h_sr_len)
+      stroke(30, 50)
+      fill(30, 100)
+      strokeWeight(h_sr_len)
+      rectMode(CENTER)
+      rect(this.length / 2, 0, this.length + sr_len, sr_len, h_sr_len)
 
-    noStroke()
-    fill(255, 150)
-    ellipse(this.length, 0, h_sr_len, h_sr_len);
+      // strokeWeight(1)
+      // fill(225, 53, 6, 100)
+      // ellipse(0, 0, h_sr_len, h_sr_len)
+
+      noStroke()
+      fill(255, 150)
+      ellipse(this.length, 0, h_sr_len, h_sr_len);
+    }
     
     if (callback) {
       callback(this)
@@ -55,7 +59,7 @@ class Segment {
     for(let c of this.children){
       transformer.push()
       transformer.translate(c.pos, 0)
-      c.seg.draw(transformer, callback)
+      c.seg.draw(transformer, drawArms, callback)
       transformer.pop()
     }   
     

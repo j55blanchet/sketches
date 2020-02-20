@@ -14,9 +14,12 @@ var angleRates: number[]
 
 
 var params: {
+  width: number,
+  height: number,
   rootSegs: {
     min: number,
-    max: number
+    max: number,
+    locs: "random" | p5.Vector[]
   },
   depth: {
     min: number,
@@ -39,11 +42,13 @@ var params: {
     backgroundColor: p5.Color,
     pointSize: number,
     lineWeight: number,
-    specificDepth: number | false,
+    specificDepth: number[] | number | "all",
     specificOpacity: number | false,
+    drawLines: boolean,
+    drawDots: boolean,
+    drawArms: boolean
   },
-  drawLines: boolean,
-  drawDots: boolean,
+  
   color: {
     offset: number,
   }
@@ -71,16 +76,23 @@ function setup() {
   ]
 
   params = {
+    width: 5120,
+    height: 2880,
     rootSegs: {
-      min: 1,
-      max: 1
+      min: 10,
+      max: 10,
+      locs: 
+      "random",
+      // [createVector(-1020, 0),
+        // createVector(0, 0),
+        // createVector(1020, 0)]
     },
     depth: {
-      min: 5,
-      max: 5
+      min: 4,
+      max: 4
     },
     length: {
-      masterScale: 0.8,
+      masterScale: 1,
       min: 0.0455,
       max: 0.2525
     },
@@ -93,14 +105,15 @@ function setup() {
       randomRates: false
     },
     drawing: {
-      backgroundColor: color(240),
-      pointSize: 10,
+      backgroundColor: color(40),
+      pointSize: 34,
       lineWeight: 8,
-      specificDepth: 5,
+      specificDepth: 4, //[2, 3, 4, 5, 6, 7, 8],
       specificOpacity: 100,
-    },
-    drawLines: true,
-    drawDots: false, 
+      drawArms: false,
+      drawLines: false,
+      drawDots: true, 
+    },    
     color: {
       offset: floor(random(colors.length))
     }
@@ -115,19 +128,22 @@ function setup() {
     }
   } else {
     angleRates = [
+      0.24,
       0.04,
       0.08,
       0.12,
-      0.24
+      
       // 0.05,
       // 0.025,
       // 0.075
     ]
   }
 
+  let randomCol = () => { let ci = round(random(colors.length - 1)); return colors[ci]}
+
   rootSegs = []
 
-  canvas = createCanvas(windowWidth, windowHeight - 40);
+  canvas = createCanvas(params.width, params.height);
   
   frameRate(60)
   background(params.drawing.backgroundColor)
@@ -142,15 +158,18 @@ function setup() {
     let length = random(params.length.min * minDim, params.length.max * minDim)
     let startAng = random(params.angle.startMin, params.angle.startMax)
 
-    let rootSeg = new Segment(null, length, startAng);
+    let rootSeg = new Segment(null, length, startAng, undefined, randomCol());
     let targetDepth = round(random(params.depth.min, params.depth.max))
     
     for(let seg = rootSeg, depth = 1; depth < targetDepth; depth ++) {
-      seg = seg.addChild(seg.length, random(TWO_PI), random(params.length.min * minDim, params.length.max * minDim))
+      seg = seg.addChild(seg.length, random(TWO_PI), random(params.length.min * minDim, params.length.max * minDim), randomCol())
     }
 
     let loc = createVector(0, 0)
-    if (rootSegCount > 1) {
+    if (params.rootSegs.locs != "random") {
+      let loci = i % params.rootSegs.locs.length
+      loc = params.rootSegs.locs[loci]
+    } else if (rootSegCount > 1) {
       loc = createVector(random(- width / 2, width / 2), random(- height / 2, height / 2))
     }
     
@@ -180,12 +199,17 @@ function saveAll(){
 function printLocation(seg: Segment) {
   // console.log(`seg[${seg.id}] at point: (${transformer.x}, ${transformer.y})`)
   
-  if (params.drawing.specificDepth !== false && params.drawing.specificDepth !== seg.depth) {
-    return
+  if (params.drawing.specificDepth != "all"){
+
+    if (Array.isArray(params.drawing.specificDepth) && params.drawing.specificDepth.indexOf(seg.depth) < 0) {
+      return
+    } else if (typeof(params.drawing.specificDepth) == "number" && params.drawing.specificDepth !== seg.depth) {
+      return
+    }
   }
 
   let ci = (params.color.offset + seg.id) % colors.length;
-  let c = colors[ci]
+  let c = seg.color ?? colors[ci]
 
   
   if (params.drawing.specificOpacity !== false) {
@@ -207,7 +231,7 @@ function printLocation(seg: Segment) {
 
   let loc = {x: transformer.x, y: transformer.y}
 
-  if (params.drawLines && seg.pLoc && seg.ppLoc && seg.pppLoc) 
+  if (params.drawing.drawLines && seg.pLoc && seg.ppLoc && seg.pppLoc) 
   {
     
     buffer.strokeWeight(params.drawing.lineWeight)
@@ -220,7 +244,7 @@ function printLocation(seg: Segment) {
 
     // buffer.line(seg.pLoc.x, seg.pLoc.y, loc.x, loc.y)
   }
-  if (params.drawDots)
+  if (params.drawing.drawDots)
   {
     buffer.strokeWeight(params.drawing.pointSize)
     buffer.point(transformer.x, transformer.y);
@@ -250,7 +274,8 @@ function draw() {
 
     transformer.push()
     transformer.translate(rootSeg.loc.x, rootSeg.loc.y)
-    rootSeg.seg.draw(transformer, printLocation);
+    rootSeg.seg.draw(transformer, params.drawing.drawArms, printLocation);
+    transformer.pop()
 
   }
 

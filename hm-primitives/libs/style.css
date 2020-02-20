@@ -1,7 +1,10 @@
 html, body {
   margin: 0;
-  padding: 0;
+  /* padding: 10em; */
+  background: darkgray;
+  text-align: center;
 }
 canvas {
   display: block;
+  margin: auto;
 }

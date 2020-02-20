@@ -1,5 +1,6 @@
 html, body {
   margin: 0;
+  padding: 0;
   /* padding: 10em; */
   background: darkgray;
   text-align: center;
@@ -7,4 +8,10 @@ html, body {
 canvas {
   display: block;
   margin: auto;
+  margin-bottom: 2em;
+}
+
+button {
+  padding: 2em;
+  font-size: 2em;
 }

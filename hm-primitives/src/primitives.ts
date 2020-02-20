@@ -54,13 +54,16 @@ var params: {
   }
 }
 
-
-function setup() {
+function createButtons() {
   createButton("Save Drawing (Transparent Background)").mouseClicked(saveBufferTransparent)
   createSpan("&nbsp;")
   createButton("Save Drawing (Opaque Background)").mouseClicked(saveBufferWithBackground)
   createSpan("&nbsp;")
   createButton("Save Screenshot").mouseClicked(saveAll)
+}
+
+function setup() {
+  pixelDensity(1 / displayDensity())
 
   colors = [
       // https://paletton.com/#uid=75-0S0kmqsTcVHEidwXrnpUtBkl
@@ -76,11 +79,11 @@ function setup() {
   ]
 
   params = {
-    width: 5120,
-    height: 2880,
+    width: windowWidth,
+    height: windowHeight,
     rootSegs: {
-      min: 10,
-      max: 10,
+      min: 1,
+      max: 1,
       locs: 
       "random",
       // [createVector(-1020, 0),
@@ -88,8 +91,8 @@ function setup() {
         // createVector(1020, 0)]
     },
     depth: {
-      min: 4,
-      max: 4
+      min: 5,
+      max: 5
     },
     length: {
       masterScale: 1,
@@ -102,13 +105,13 @@ function setup() {
       incMin: 0.01,
       incMax: 0.08,
       randomCount: 10,
-      randomRates: false
+      randomRates: true
     },
     drawing: {
       backgroundColor: color(40),
       pointSize: 34,
       lineWeight: 8,
-      specificDepth: 4, //[2, 3, 4, 5, 6, 7, 8],
+      specificDepth: [3, 4, 5], //, 5, 6, 7, 8],
       specificOpacity: 100,
       drawArms: false,
       drawLines: false,
@@ -179,8 +182,7 @@ function setup() {
     })
   }
 
-  
-  // createButton("Save with arms").mouseClicked(saveAll)
+  createButtons()
 }
 
 function saveBufferWithBackground(){

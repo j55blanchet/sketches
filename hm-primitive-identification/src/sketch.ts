@@ -17,8 +17,8 @@ console.log(import.meta);
 export default function sketch(p: p5) {
   
   const params:  IParams = {
-    width: p.windowWidth,
-    height: p.windowHeight,
+    width: 500,
+    height: 500,
     rootSegs: {
       min: 1,
       max: 1,
@@ -46,10 +46,10 @@ export default function sketch(p: p5) {
       pointSize: 34,
       lineWeight: 8,
       specificDepth: [3, 4, 5], //, 5, 6, 7, 8],
-      specificOpacity: 100,
+      specificOpacity: 50,
       drawArms: true,
       drawLines: true,
-      drawDots: true, 
+      drawDots: false, 
     },    
     color: {
       offset: 0
@@ -98,6 +98,7 @@ export default function sketch(p: p5) {
     transformer = new P5Transformer(this)
     canvas = this.createCanvas(params.width, params.height);
     buffer = this.createGraphics(this.width, this.height)
+    this.createDiv()
     createButtons()
 
     this.frameRate(60)

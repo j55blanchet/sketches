@@ -71,15 +71,17 @@ export default class JsonMotion implements IMotion {
         let motion_i = this.motionIndexes[s.id]
         
         if (motion.length > motion_i + 1  && motion[motion_i + 1].time < elapsedTime) {
-                motion_i == 1
+            motion_i += 1
+            this.motionIndexes[s.id] = motion_i
         }
 
         let dw = motion[motion_i].dw
-        let da = dw * this.p.deltaTime / 1000
+        let dt = this.p.deltaTime / 1000
+        let da = dw * dt
         s.angle += da
         s.angle %= this.p.TWO_PI
 
-        console.log(`MOVE Seg #${s.id} dw: ${dw.toFixed(2)} dt: ${this.p.deltaTime.toFixed(2)} da: ${da.toFixed(4)}`)
+        console.log(`[${elapsedTime.toFixed(2)}] MOVE Seg #${s.id} MotionI:${motion_i} dw: ${dw.toFixed(2)} dt: ${dt.toFixed(2)} da: ${da.toFixed(4)}`)
     }
 
     isDone(): boolean {

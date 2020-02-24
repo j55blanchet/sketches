@@ -1,0 +1,29 @@
+{
+    "runtimeSecs": 2.0,
+    "segments": [
+        {
+            "length": 100.0,
+            "angle": 0.0,
+            "motion": [{
+                "time": 0.0,
+                "dw": 3.14
+            }]
+        },
+        {
+            "length": 90.0,
+            "angle": 10.0,
+            "motion": [{
+                "time": 0.0,
+                "dw": 0
+            }]
+        },
+        {
+            "length": 40.0,
+            "angle": 10.1,
+            "motion": [{
+                "time": 0.0,
+                "dw": -3.14
+            }]
+        }
+    ]
+}

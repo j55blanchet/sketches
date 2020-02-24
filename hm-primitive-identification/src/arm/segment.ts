@@ -1,8 +1,8 @@
 import * as p5 from "p5/index";
 
-import P5Transformer from "./p5transformer.js"
+import P5Transformer from "../p5utils/p5transformer.js"
 
-console.log(import.meta);
+// console.log(import.meta);
 
 let gid = 0
 

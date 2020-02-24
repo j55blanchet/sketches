@@ -3,65 +3,20 @@
  */
 
 import * as p5 from "p5/index"
-import Segment from './segment.js'
-import IMotion from './imotion'
-import ConstantMotion from './constantmotion.js'
-import P5Transformer from './p5transformer.js'
+import Segment from './arm/segment.js'
+import IMotion from './motion/imotion.js'
+import ConstantMotion from './motion/constantmotion.js'
+import P5Transformer from './p5utils/p5transformer.js'
+import JsonMotion from "./motion/jsonmotion.js"
+import IArmBuilder from "./arm/iarmbuilder.js"
+import JsonArmBuilder from "./arm/jsonarmbuilder.js"
+import { IParams } from "./p5utils/iparams.js"
 
 console.log(import.meta);
 
 export default function sketch(p: p5) {
-
-  let isLooping = true
-  let transformer: P5Transformer;
-
-  let canvas: p5.Renderer
-  let buffer: p5.Graphics
-
-  let colors: p5.Color[]
-  let rootSegs: {loc: p5.Vector, seg: Segment}[]
-  let motion: IMotion
-
-  let params:  {
-    width: number,
-    height: number,
-    rootSegs: {
-      min: number,
-      max: number,
-      locs: "random" | p5.Vector[]
-    },
-    depth: {
-      min: number,
-      max: number
-    },
-    length: {
-      masterScale: number,
-      min: number,
-      max: number
-    },
-    angle: {
-      startMin: number,
-      startMax: number,
-    },
-    drawing: {
-      backgroundColor: p5.Color,
-      pointSize: number,
-      lineWeight: number,
-      specificDepth: number[] | number | "all",
-      specificOpacity: number | false,
-      drawLines: boolean,
-      drawDots: boolean,
-      drawArms: boolean
-    },
-    
-    color: {
-      offset: number,
-    },
   
-    motion: {
-      durationSecs: number
-    }
-  } = {
+  const params:  IParams = {
     width: p.windowWidth,
     height: p.windowHeight,
     rootSegs: {
@@ -104,6 +59,25 @@ export default function sketch(p: p5) {
     }
   }
 
+  let isLooping = true
+  let transformer: P5Transformer;
+
+  let canvas: p5.Renderer
+  let buffer: p5.Graphics
+
+  let colors: p5.Color[]
+  let rootSegs: {loc: p5.Vector, seg: Segment}[]
+  let motion: IMotion
+
+  let armbuilder: IArmBuilder = new JsonArmBuilder(p)
+  motion = new JsonMotion(p)
+
+
+  p.preload = function(this: typeof p) {
+    motion.preload()
+    armbuilder.preload()
+  }.bind(p)
+
   p.setup = function (this: typeof p) {
     colors = [
         // https://paletton.com/#uid=75-0S0kmqsTcVHEidwXrnpUtBkl
@@ -119,51 +93,16 @@ export default function sketch(p: p5) {
     ]
     
     this.createCanvas(1000, 1000)
-    motion = new ConstantMotion(this, params.motion.durationSecs)
 
-    let randomCol = () => { let ci = this.round(this.random(colors.length - 1)); return colors[ci]}
-
-    rootSegs = []
-
-    canvas = this.createCanvas(params.width, params.height);
-    
-    this.frameRate(60)
-    this.background(params.drawing.backgroundColor)
-    buffer = this.createGraphics(this.width, this.height)
-    
+    rootSegs = armbuilder.buildRoots(colors)
     transformer = new P5Transformer(this)
-
-    let minDim = this.min(this.width, this.height)
-    const rootSegCount = this.round(this.random(params.rootSegs.min, params.rootSegs.max))
-    for(let i = 0; i < rootSegCount; i++) {
-
-      let length = this.random(params.length.min * minDim, params.length.max * minDim)
-      let startAng = this.random(params.angle.startMin, params.angle.startMax)
-
-      let rootSeg = new Segment(null, length, startAng, undefined, randomCol());
-      let targetDepth = this.round(this.random(params.depth.min, params.depth.max))
-      
-      for(let seg = rootSeg, depth = 1; depth < targetDepth; depth ++) {
-        seg = seg.addChild(seg.length, this.random(this.TWO_PI), this.random(params.length.min * minDim, params.length.max * minDim), randomCol())
-      }
-
-      let loc = this.createVector(0, 0)
-      if (params.rootSegs.locs != "random") {
-        let locs = params.rootSegs.locs as unknown as p5.Vector[]
-        let loci = i % params.rootSegs.locs.length
-        loc = locs[loci]
-      } else if (rootSegCount > 1) {
-        loc = this.createVector(this.random(- this.width / 2, this.width / 2), this.random(- this.height / 2, this.height / 2))
-      }
-      
-      rootSegs.push({
-        loc: loc,
-        seg: rootSeg
-      })
-    }
-
+    canvas = this.createCanvas(params.width, params.height);
+    buffer = this.createGraphics(this.width, this.height)
     createButtons()
 
+    this.frameRate(60)
+    this.background(params.drawing.backgroundColor)
+    
   }.bind(p);
 
   let createButtons = function(this: typeof p) {
@@ -218,12 +157,9 @@ export default function sketch(p: p5) {
     } else {
       c.setAlpha(50 + seg.depth * 20)
     }
-    
-    
+        
     buffer.stroke(c)
-  
     
-    // console.log(`Seg #${seg.id}\tcolor: ${ci}`)
   
     transformer.push()
     transformer.translate(seg.length, 0);

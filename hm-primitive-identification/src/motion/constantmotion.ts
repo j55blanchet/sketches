@@ -1,9 +1,9 @@
 
 import * as p5 from "p5/index";
-import Segment from './segment'
-import IMotion from './imotion'
+import Segment from '../arm/segment.js'
+import IMotion from './imotion.js'
 
-console.log(import.meta);
+// console.log(import.meta);
 
 export default class ConstantMotion implements IMotion {
 
@@ -28,6 +28,8 @@ export default class ConstantMotion implements IMotion {
         ]
     }
 
+    preload() {}
+
     performMotion(s: Segment) {
         s.angle += this.angleRates[s.depth % this.angleRates.length];
         s.angle %= this.p.TWO_PI
@@ -44,5 +46,9 @@ export default class ConstantMotion implements IMotion {
     
         this.finished = (new Date().getTime() - this.startTime.getTime()) / 1000 > this.durationSecs
         return this.finished
+    }
+
+    isLoaded(): boolean {
+        return true
     }
 }

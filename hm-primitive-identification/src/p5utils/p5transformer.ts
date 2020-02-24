@@ -1,6 +1,6 @@
 import * as p5 from "p5/index";
 
-console.log(import.meta);
+// console.log(import.meta);
 
 export default class P5Transformer {
     private stack: number[][] = []

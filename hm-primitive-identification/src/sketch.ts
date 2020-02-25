@@ -12,6 +12,9 @@ import IArmBuilder from "./arm/iarmbuilder.js"
 import JsonArmBuilder from "./arm/jsonarmbuilder.js"
 import { IParams } from "./p5utils/iparams.js"
 
+import IRecorder from "./recording/irecorder.js"
+import LinearPointRecorder from "./recording/linearpointrecorder.js"
+
 console.log(import.meta);
 
 export default function sketch(p: p5) {
@@ -67,11 +70,13 @@ export default function sketch(p: p5) {
 
   let colors: p5.Color[]
   let rootSegs: {loc: p5.Vector, seg: Segment}[]
-  let motion: IMotion
+  
 
   let armbuilder: IArmBuilder = new JsonArmBuilder(p)
-  motion = new JsonMotion(p)
+  let motion: IMotion = new JsonMotion(p)
+  let recorder: IRecorder = new LinearPointRecorder()
 
+  let startTime: Date | undefined
 
   p.preload = function(this: typeof p) {
     motion.preload()
@@ -95,6 +100,7 @@ export default function sketch(p: p5) {
     this.createCanvas(1000, 1000)
 
     rootSegs = armbuilder.buildRoots(colors)
+    recorder.preparePoints(rootSegs[0].seg)
     transformer = new P5Transformer(this)
     canvas = this.createCanvas(params.width, params.height);
     buffer = this.createGraphics(this.width, this.height)
@@ -104,6 +110,7 @@ export default function sketch(p: p5) {
     this.frameRate(60)
     this.background(params.drawing.backgroundColor)
     
+    
   }.bind(p);
 
   let createButtons = function(this: typeof p) {
@@ -112,6 +119,11 @@ export default function sketch(p: p5) {
     this.createButton("Save Drawing (Opaque Background)").mouseClicked(saveBufferWithBackground)
     this.createSpan("&nbsp;")
     this.createButton("Save Screenshot").mouseClicked(saveAll)
+    this.createElement("br")
+    this.createButton("Save Data").mouseClicked(() => {
+      console.log("Saving data file")
+      recorder.saveDataFile()
+    })
   }.bind(p);
 
   let saveBufferWithBackground = function(this: typeof p){
@@ -196,6 +208,12 @@ export default function sketch(p: p5) {
 
 
   p.draw = function (this: typeof p) {
+
+    if (!startTime) {
+      startTime = new Date()
+    }
+    let timestamp = (new Date().getTime() - startTime.getTime()) / 1000
+
     transformer.reset()
 
     this.background(params.drawing.backgroundColor)
@@ -220,6 +238,7 @@ export default function sketch(p: p5) {
     if (!motion.isDone()) {
       for(let rootSeg of rootSegs) {
         rootSeg.seg.recurse(s => motion.performMotion(s));
+        recorder.captureFrame(timestamp, rootSeg.seg)
       }
     }
   }.bind(p);

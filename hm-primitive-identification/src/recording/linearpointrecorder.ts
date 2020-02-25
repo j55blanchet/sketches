@@ -42,11 +42,30 @@ export default class LinearPointRecorder implements IRecorder {
 
         let xbase = 0
         let ybase = 0
+        let angle = 0
+        let segment = rootSegment
         
-        for(let loc = 0; loc < rootSegment.length; loc += this.dx) {
+        for(let segment = rootSegment; segment.children.length > 0; segment = segment.children[0].seg) {
 
-        }
+            angle = segment.angle
 
+            for(let loc = 0; loc < rootSegment.length; loc += this.dx) {
+                
+                let x = xbase + loc + Math.cos(angle)
+                let y = ybase + loc + Math.sin(angle)
+
+                this.data.push({
+                    time: timestamp,
+                    segID: segment.id,
+                    location: loc,
+                    x: x, 
+                    y: y
+                })
+            }
+    
+            xbase += rootSegment.length * Math.cos(angle)   
+            ybase += rootSegment.length * Math.sin(angle)
+        }   
     }
     
     draw(graphic: p5.Graphics): void {

@@ -9,4 +9,6 @@ export default interface IRecorder {
     captureFrame(timestamp: number, rootSegment: Segment): void
 
     draw(graphic: p5.Graphics): void
+
+    saveDataFile(): void
 }
